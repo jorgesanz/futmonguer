@@ -11,5 +11,6 @@ public class Player {
     private String owner;
     private String value;
     private String points;
+    private String state;
 
 }
