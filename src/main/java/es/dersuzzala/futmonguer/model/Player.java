@@ -9,8 +9,8 @@ public class Player {
     private String team;
     private String position;
     private String owner;
-    private String value;
-    private String points;
+    private Integer value;
+    private Integer points;
     private String state;
 
 }
