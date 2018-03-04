@@ -44,27 +44,32 @@ public class Parser {
             });
 
         }
-        List<Team> bestTeam = calculateBestTeam(players, new ArrayList<>(),100_000_000);
+        List<Team> teams = new ArrayList<>();
+        Team team = new Team();
+        team.setPlayers(new ArrayList<>());
+        calculateBestTeam(teams, players, team,100_000_000);
 
         System.out.println(players.size());
     }
 
-    private static List<Team> calculateBestTeam(List<Player> players, List<Player> teamPlayers, Integer budget) {
-        if (teamPlayers.size()==11){
-            Team team = new Team();
-            team.setPlayers(players);
-            team.setPoints(players.stream().mapToInt(Player::getPoints).sum());
-            System.out.println("obtained team with points "+team.getPoints());
-            return Arrays.asList(team);
+    private static void calculateBestTeam(List<Team> teams, List<Player> players, Team currentTeam,
+                                                Integer budget) {
+        if (currentTeam.getPlayers().size()==11){
+            currentTeam.setPoints(currentTeam.getPlayers().stream().mapToInt(Player::getPoints).sum());
+            System.out.println("obtained team with points "+currentTeam.getPoints());
+            teams.add(currentTeam);
         }
         else{
-            return  players.stream().map(player -> {
+            players.stream().forEach(player -> {
+                Team team = new Team();
+                team.setPlayers(new ArrayList<>(currentTeam.getPlayers()));
                 List<Player> remainingPlayers = new ArrayList<>(players);
                 remainingPlayers.remove(player);
-                teamPlayers.add(player);
+                team.getPlayers().add(player);
                 Integer currentBudget = budget + player.getValue();
-                return calculateBestTeam(remainingPlayers,teamPlayers,currentBudget);
-            }).flatMap(results -> results.stream()).collect(toList());
+                calculateBestTeam(teams, remainingPlayers,team,currentBudget);
+
+            });
         }
     }
 
