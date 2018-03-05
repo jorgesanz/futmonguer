@@ -15,6 +15,8 @@ public class Parser {
 
     public static Integer MIN_SCORE = 100;
 
+    public static Integer MAX_TEAMS = 100;
+
     public static void main(String[] args) throws IOException {
 
         Parser parser = new Parser();
@@ -37,7 +39,7 @@ public class Parser {
                 player.setPoints(Integer.parseInt(playerElement.select(".points").html()));
                 player.setValue(Integer.parseInt(playerElement.select(".cost").html().toString().replaceAll("\\.",
                         "").replaceAll(" €","")));
-                player.setOwner(playerElement.select(".owner").html());
+                //player.setOwner(playerElement.select(".owner").html());
                 player.setState(playerElement.select(".time").html());
                 players.add(player);
             });
@@ -48,7 +50,7 @@ public class Parser {
         team.setPlayers(new ArrayList<>());
 
         List<Player> filteredPlayers = players.stream().filter(player -> player.getPoints() > MIN_SCORE).collect(Collectors.toList());
-        calculateBestTeam(teams, filteredPlayers, team,100_000_000);
+        calculateBestTeam(teams, filteredPlayers, team,200_000_000);
 
         System.out.println(teams.size());
     }
@@ -58,14 +60,23 @@ public class Parser {
         if (currentTeam.getPlayers().size()==11){
             currentTeam.setPoints(currentTeam.getPlayers().stream().mapToInt(Player::getPoints).sum());
             if(isTeam(currentTeam)){
-                teams.add(currentTeam);
-                teams.stream().sorted((f1, f2) -> Integer.compare(f2.getPoints(), f1.getPoints()));
-                System.out.println("obtained team with points "+currentTeam.getPoints());
+                if (teams.size()>=MAX_TEAMS  && currentTeam.getPoints()> teams.get(99).getPoints()){
+                    teams.add(currentTeam);
+                    teams = teams.stream().sorted((f1, f2) -> Integer.compare(f2.getPoints(), f1.getPoints())).collect(Collectors.toList());
+                    teams.remove(100);
+                    System.out.println("obtained team with points "+currentTeam.getPoints()+" "+currentTeam.toString());
+                }
+                else if(teams.size()<MAX_TEAMS){
+                    teams.add(currentTeam);
+                    teams = teams.stream().sorted((f1, f2) -> Integer.compare(f2.getPoints(), f1.getPoints())).collect(Collectors.toList());
+                    System.out.println("obtained team with points "+currentTeam.getPoints()+" "+currentTeam.toString());
+                }
+
             }
 
         }
         else{
-            players.parallelStream().forEach(player -> {
+            for (Player player : players){
                 Team team = new Team();
                 team.setPlayers(new ArrayList<>(currentTeam.getPlayers()));
                 List<Player> remainingPlayers = new ArrayList<>(players);
@@ -75,9 +86,7 @@ public class Parser {
                 if(currentBudget > 0 && validateTeam(team)){
                     calculateBestTeam(teams, remainingPlayers,team,currentBudget);
                 }
-
-
-            });
+            }
         }
     }
 
