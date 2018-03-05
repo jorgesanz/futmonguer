@@ -13,7 +13,7 @@ import java.util.stream.Collectors;
 
 public class Parser {
 
-    public static Integer MIN_SCORE = 90;
+    public static Integer MIN_SCORE = 100;
 
     public static void main(String[] args) throws IOException {
 
@@ -50,16 +50,19 @@ public class Parser {
         List<Player> filteredPlayers = players.stream().filter(player -> player.getPoints() > MIN_SCORE).collect(Collectors.toList());
         calculateBestTeam(teams, filteredPlayers, team,100_000_000);
 
-        System.out.println(players.size());
+        System.out.println(teams.size());
     }
 
     private static void calculateBestTeam(List<Team> teams, List<Player> players, Team currentTeam,
                                                 Integer budget) {
         if (currentTeam.getPlayers().size()==11){
             currentTeam.setPoints(currentTeam.getPlayers().stream().mapToInt(Player::getPoints).sum());
-            System.out.println("obtained team with points "+currentTeam.getPoints());
-            if(isTeam(currentTeam))
-            teams.add(currentTeam);
+            if(isTeam(currentTeam)){
+                teams.add(currentTeam);
+                teams.stream().sorted((f1, f2) -> Integer.compare(f2.getPoints(), f1.getPoints()));
+                System.out.println("obtained team with points "+currentTeam.getPoints());
+            }
+
         }
         else{
             players.parallelStream().forEach(player -> {
@@ -69,7 +72,7 @@ public class Parser {
                 remainingPlayers.remove(player);
                 team.getPlayers().add(player);
                 Integer currentBudget = budget - player.getValue();
-                if(budget > 0 && validateTeam(team)){
+                if(currentBudget > 0 && validateTeam(team)){
                     calculateBestTeam(teams, remainingPlayers,team,currentBudget);
                 }
 
