@@ -8,13 +8,12 @@ import org.jsoup.select.Elements;
 
 import java.io.*;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-
-import static java.util.stream.Collectors.toList;
+import java.util.stream.Collectors;
 
 public class Parser {
 
+    public static Integer MIN_SCORE = 90;
 
     public static void main(String[] args) throws IOException {
 
@@ -47,7 +46,9 @@ public class Parser {
         List<Team> teams = new ArrayList<>();
         Team team = new Team();
         team.setPlayers(new ArrayList<>());
-        calculateBestTeam(teams, players, team,100_000_000);
+
+        List<Player> filteredPlayers = players.stream().filter(player -> player.getPoints() > MIN_SCORE).collect(Collectors.toList());
+        calculateBestTeam(teams, filteredPlayers, team,100_000_000);
 
         System.out.println(players.size());
     }
@@ -57,20 +58,48 @@ public class Parser {
         if (currentTeam.getPlayers().size()==11){
             currentTeam.setPoints(currentTeam.getPlayers().stream().mapToInt(Player::getPoints).sum());
             System.out.println("obtained team with points "+currentTeam.getPoints());
+            if(isTeam(currentTeam))
             teams.add(currentTeam);
         }
         else{
-            players.stream().forEach(player -> {
+            players.parallelStream().forEach(player -> {
                 Team team = new Team();
                 team.setPlayers(new ArrayList<>(currentTeam.getPlayers()));
                 List<Player> remainingPlayers = new ArrayList<>(players);
                 remainingPlayers.remove(player);
                 team.getPlayers().add(player);
-                Integer currentBudget = budget + player.getValue();
-                calculateBestTeam(teams, remainingPlayers,team,currentBudget);
+                Integer currentBudget = budget - player.getValue();
+                if(budget > 0 && validateTeam(team)){
+                    calculateBestTeam(teams, remainingPlayers,team,currentBudget);
+                }
+
 
             });
         }
+    }
+
+    private static boolean isTeam(Team team) {
+        if(team.getPlayers().stream().filter(player -> player.getPosition().equals("Portero")).count()< Team.MIN_GK)
+            return false;
+        if(team.getPlayers().stream().filter(player -> player.getPosition().equals("Defensa")).count()< Team.MIN_DF)
+            return false;
+        if(team.getPlayers().stream().filter(player -> player.getPosition().equals("Medio")).count()< Team.MIN_CC)
+            return false;
+        if(team.getPlayers().stream().filter(player -> player.getPosition().equals("Delantero")).count()< Team.MIN_DL)
+            return false;
+        return true;
+    }
+
+    private static boolean validateTeam(Team team) {
+        if(team.getPlayers().stream().filter(player -> player.getPosition().equals("Portero")).count()> Team.MAX_GK)
+            return false;
+        if(team.getPlayers().stream().filter(player -> player.getPosition().equals("Defensa")).count()> Team.MAX_DF)
+            return false;
+        if(team.getPlayers().stream().filter(player -> player.getPosition().equals("Medio")).count()> Team.MAX_CC)
+            return false;
+        if(team.getPlayers().stream().filter(player -> player.getPosition().equals("Delantero")).count()> Team.MAX_DL)
+            return false;
+        return true;
     }
 
 
