@@ -1,6 +1,7 @@
 package es.dersuzzala.futmonguer.service;
 
 import es.dersuzzala.futmonguer.model.Player;
+import es.dersuzzala.futmonguer.model.Team;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -19,7 +20,7 @@ public class TeamCalculatorService {
     }
 
     private void calculateCombinations(List<Player> players) {
-        int teamSize = 3;
+        int teamSize = 11;
         int n = players.size();
         printCombination(players, n, teamSize);
     }
@@ -47,9 +48,15 @@ r ---> Size of a combination to be printed */
         // Current combination is ready to be printed, print it
         if (index == teamSize)
         {
-            for (int j=0; j<teamSize; j++)
-                System.out.print(data[j].getName()+" "+data[j].getPoints()+" ");
-            System.out.println("");
+            Team team = new Team();
+            List<Player> teamPlayers = new ArrayList<>();
+            for (int j=0; j<teamSize; j++){
+
+                teamPlayers.add(data[j]);
+                //System.out.print(data[j].getName()+" "+data[j].getPoints()+" ");
+            }
+            team.setPlayers(teamPlayers);
+            if(isTeam(team)){System.out.println(team);}
             return;
         }
 
@@ -62,6 +69,18 @@ r ---> Size of a combination to be printed */
             data[index] = players.get(i);
             combinationUtil(players, data, i+1, end, index+1, teamSize);
         }
+    }
+
+        private static boolean isTeam(Team team) {
+        if(team.getPlayers().stream().filter(player -> player.getPosition().equals("Portero")).count()< Team.MIN_GK)
+            return false;
+        if(team.getPlayers().stream().filter(player -> player.getPosition().equals("Defensa")).count()< Team.MIN_DF)
+            return false;
+        if(team.getPlayers().stream().filter(player -> player.getPosition().equals("Medio")).count()< Team.MIN_CC)
+            return false;
+        if(team.getPlayers().stream().filter(player -> player.getPosition().equals("Delantero")).count()< Team.MIN_DL)
+            return false;
+        return true;
     }
 
 }

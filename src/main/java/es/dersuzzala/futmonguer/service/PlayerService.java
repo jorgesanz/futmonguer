@@ -17,7 +17,7 @@ import java.util.stream.Collectors;
 public class PlayerService {
 
 
-    public static Integer MIN_SCORE = 182;
+    public static Integer MIN_SCORE = 130;
 
     public Collection<Player> getPlayers() throws IOException {
         List<String> files = getResourceFiles("/");
