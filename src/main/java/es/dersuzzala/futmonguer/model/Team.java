@@ -2,6 +2,7 @@ package es.dersuzzala.futmonguer.model;
 
 import lombok.Data;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Data
@@ -17,4 +18,10 @@ public class Team {
     public static Integer MAX_DL = 4;
     private List<Player> players;
     private Integer points;
+    private Integer budget;
+
+    public void addPlayer(Player player){
+        if(players == null) players = new ArrayList<>();
+        players.add(player);
+    }
 }

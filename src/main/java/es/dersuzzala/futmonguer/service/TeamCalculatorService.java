@@ -33,8 +33,10 @@ public class TeamCalculatorService {
         // A temporary array to store all combination one by one
         Player[] data=new Player[teamSize];
 
-        // Print all combination using temprary array 'data[]'
-        combinationUtil(players, data, 0, n-1, 0, teamSize);
+        Team team = new Team();
+        team.setPlayers(new ArrayList<>());
+        team.setBudget(200_000_000);
+        combinationUtil(players, team, 0, n-1, 0, teamSize);
     }
 
     /* arr[]  ---> Input Array
@@ -42,21 +44,14 @@ data[] ---> Temporary array to store current combination
 start & end ---> Staring and Ending indexes in arr[]
 index  ---> Current index in data[]
 r ---> Size of a combination to be printed */
-    void combinationUtil(List<Player> players, Player[] data, int start,
+    void combinationUtil(List<Player> players, Team team, int start,
                                 int end, int index, int teamSize)
     {
         // Current combination is ready to be printed, print it
         if (index == teamSize)
         {
-            Team team = new Team();
-            List<Player> teamPlayers = new ArrayList<>();
-            for (int j=0; j<teamSize; j++){
-
-                teamPlayers.add(data[j]);
-                //System.out.print(data[j].getName()+" "+data[j].getPoints()+" ");
-            }
-            team.setPlayers(teamPlayers);
-            if(isTeam(team)){System.out.println(team);}
+            if(isTeam(team)){
+                System.out.println(team);}
             return;
         }
 
@@ -66,8 +61,13 @@ r ---> Size of a combination to be printed */
         // at remaining positions
         for (int i=start; i<=end && end-i+1 >= teamSize-index; i++)
         {
-            data[index] = players.get(i);
-            combinationUtil(players, data, i+1, end, index+1, teamSize);
+            Team newTeam = new Team();
+            newTeam.setPlayers(new ArrayList<>(team.getPlayers()));
+            newTeam.addPlayer(players.get(i));
+            newTeam.setBudget(team.getBudget()-players.get(i).getValue());
+            if(newTeam.getBudget() > 0 && validateTeam(team)){
+                combinationUtil(players, newTeam, i+1, end, index+1, teamSize);
+            }
         }
     }
 
@@ -79,6 +79,19 @@ r ---> Size of a combination to be printed */
         if(team.getPlayers().stream().filter(player -> player.getPosition().equals("Medio")).count()< Team.MIN_CC)
             return false;
         if(team.getPlayers().stream().filter(player -> player.getPosition().equals("Delantero")).count()< Team.MIN_DL)
+            return false;
+        return true;
+    }
+
+
+    private static boolean validateTeam(Team team) {
+        if(team.getPlayers().stream().filter(player -> player.getPosition().equals("Portero")).count()> Team.MAX_GK)
+            return false;
+        if(team.getPlayers().stream().filter(player -> player.getPosition().equals("Defensa")).count()> Team.MAX_DF)
+            return false;
+        if(team.getPlayers().stream().filter(player -> player.getPosition().equals("Medio")).count()> Team.MAX_CC)
+            return false;
+        if(team.getPlayers().stream().filter(player -> player.getPosition().equals("Delantero")).count()> Team.MAX_DL)
             return false;
         return true;
     }
