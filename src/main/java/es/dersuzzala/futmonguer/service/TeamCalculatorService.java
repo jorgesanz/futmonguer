@@ -13,6 +13,10 @@ import java.util.List;
 public class TeamCalculatorService {
     @Autowired
     PlayerService playerService;
+
+    @Autowired
+    ResultService resultService;
+
     public void calculateTeams() throws IOException {
         List<Player> players = new ArrayList<>(playerService.getPlayers());
         calculateCombinations(players);
@@ -50,8 +54,9 @@ r ---> Size of a combination to be printed */
         // Current combination is ready to be printed, print it
         if (index == teamSize)
         {
-            if(isTeam(team)){
-                System.out.println(team);}
+            if(isTeam(team) && resultService.hasMinPoint(team)){
+                resultService.addResult(team);
+                }
             return;
         }
 
