@@ -37,4 +37,8 @@ public class ResultService {
         Integer points = team.getPlayers().stream().mapToInt(Player::getPoints).sum();
         return points > results.get(MAX_TEAMS-1).getPoints();
     }
+
+    public List<Team> getResults() {
+        return results;
+    }
 }

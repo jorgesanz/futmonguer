@@ -54,9 +54,9 @@ r ---> Size of a combination to be printed */
         // Current combination is ready to be printed, print it
         if (index == teamSize)
         {
-            if(isTeam(team) && resultService.hasMinPoint(team)){
+            if(isTeam(team) && validateTeam(team) && resultService.hasMinPoint(team)){
                 resultService.addResult(team);
-                }
+            }
             return;
         }
 
