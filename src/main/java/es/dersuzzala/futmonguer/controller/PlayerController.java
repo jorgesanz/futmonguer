@@ -28,11 +28,12 @@ public class PlayerController {
                 .map(entry ->
                 {
                     RankLine rankLine = new RankLine();
+                    rankLine.setPosition(entry.getValue().get(0).getPosition());
+                    rankLine.setTeam(entry.getValue().get(0).getTeam());
                     rankLine.setPlayerName(entry.getKey());
                     rankLine.setPoints(entry.getValue().stream().count());
                     return rankLine;
-                }).collect(Collectors.toList());
-
+                }).sorted((f1, f2) -> Long.compare(f2.getPoints(), f1.getPoints())).collect(Collectors.toList());
     }
 
 }
