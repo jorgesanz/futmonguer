@@ -1,16 +1,13 @@
 package es.dersuzzala.futmonguer.controller;
 
-import es.dersuzzala.futmonguer.model.Player;
-import es.dersuzzala.futmonguer.model.RankLine;
+import es.dersuzzala.futmonguer.model.PositionRanking;
 import es.dersuzzala.futmonguer.model.Team;
 import es.dersuzzala.futmonguer.service.ResultService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.Collection;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.groupingBy;
 
@@ -21,19 +18,10 @@ public class PlayerController {
     private ResultService resultService;
 
     @GetMapping
-    public List<RankLine> getPlayersRanking(){
+    public PositionRanking getPlayersRanking(){
         List<Team> bestTeams = resultService.getResults();
-        return bestTeams.stream().map(Team::getPlayers).flatMap(Collection::stream)
-                .collect(groupingBy(Player::getName)).entrySet().stream()
-                .map(entry ->
-                {
-                    RankLine rankLine = new RankLine();
-                    rankLine.setPosition(entry.getValue().get(0).getPosition());
-                    rankLine.setTeam(entry.getValue().get(0).getTeam());
-                    rankLine.setPlayerName(entry.getKey());
-                    rankLine.setPoints(entry.getValue().stream().count());
-                    return rankLine;
-                }).sorted((f1, f2) -> Long.compare(f2.getPoints(), f1.getPoints())).collect(Collectors.toList());
+        return resultService.getBestPlayerByPosition(resultService.getBestPlayers(bestTeams));
     }
+
 
 }

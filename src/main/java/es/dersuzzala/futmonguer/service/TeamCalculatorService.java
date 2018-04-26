@@ -17,6 +17,16 @@ public class TeamCalculatorService {
     @Autowired
     ResultService resultService;
 
+    public static Integer MIN_GK = 0;
+    public static Integer MAX_GK = 0;
+    public static Integer MIN_DF = 1;
+    public static Integer MAX_DF = 2;
+    public static Integer MIN_CC = 0;
+    public static Integer MAX_CC = 2;
+    public static Integer MIN_DL = 0;
+    public static Integer MAX_DL = 2;
+    public static final Integer BUDGET =  24_000_000;
+
     public void calculateTeams() throws IOException {
         List<Player> players = new ArrayList<>(playerService.getPlayers());
         calculateCombinations(players);
@@ -24,7 +34,7 @@ public class TeamCalculatorService {
     }
 
     private void calculateCombinations(List<Player> players) {
-        int teamSize = 11;
+        int teamSize = 4;
         int n = players.size();
         printCombination(players, n, teamSize);
     }
@@ -39,7 +49,7 @@ public class TeamCalculatorService {
 
         Team team = new Team();
         team.setPlayers(new ArrayList<>());
-        team.setBudget(200_000_000);
+        team.setBudget(BUDGET);
         combinationUtil(players, team, 0, n-1, 0, teamSize);
     }
 
@@ -77,26 +87,26 @@ r ---> Size of a combination to be printed */
     }
 
         private static boolean isTeam(Team team) {
-        if(team.getPlayers().stream().filter(player -> player.getPosition().equals("Portero")).count()< Team.MIN_GK)
+        if(team.getPlayers().stream().filter(player -> player.getPosition().equals("Portero")).count()< MIN_GK)
             return false;
-        if(team.getPlayers().stream().filter(player -> player.getPosition().equals("Defensa")).count()< Team.MIN_DF)
+        if(team.getPlayers().stream().filter(player -> player.getPosition().equals("Defensa")).count()< MIN_DF)
             return false;
-        if(team.getPlayers().stream().filter(player -> player.getPosition().equals("Medio")).count()< Team.MIN_CC)
+        if(team.getPlayers().stream().filter(player -> player.getPosition().equals("Medio")).count()< MIN_CC)
             return false;
-        if(team.getPlayers().stream().filter(player -> player.getPosition().equals("Delantero")).count()< Team.MIN_DL)
+        if(team.getPlayers().stream().filter(player -> player.getPosition().equals("Delantero")).count()< MIN_DL)
             return false;
         return true;
     }
 
 
     private static boolean validateTeam(Team team) {
-        if(team.getPlayers().stream().filter(player -> player.getPosition().equals("Portero")).count()> Team.MAX_GK)
+        if(team.getPlayers().stream().filter(player -> player.getPosition().equals("Portero")).count()> MAX_GK)
             return false;
-        if(team.getPlayers().stream().filter(player -> player.getPosition().equals("Defensa")).count()> Team.MAX_DF)
+        if(team.getPlayers().stream().filter(player -> player.getPosition().equals("Defensa")).count()> MAX_DF)
             return false;
-        if(team.getPlayers().stream().filter(player -> player.getPosition().equals("Medio")).count()> Team.MAX_CC)
+        if(team.getPlayers().stream().filter(player -> player.getPosition().equals("Medio")).count()> MAX_CC)
             return false;
-        if(team.getPlayers().stream().filter(player -> player.getPosition().equals("Delantero")).count()> Team.MAX_DL)
+        if(team.getPlayers().stream().filter(player -> player.getPosition().equals("Delantero")).count()> MAX_DL)
             return false;
         return true;
     }
